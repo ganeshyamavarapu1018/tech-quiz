@@ -1,7 +1,5 @@
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    "https://tech-quiz-git-main-ganesh-yamavarapus-projects.vercel.app"
-  ),
+  metadataBase: new URL("https://tech-quiz-coral.vercel.app"),
 
   title: "🔥 GenAI Professional Quiz | Live Leaderboard",
 
@@ -12,15 +10,15 @@ export const metadata: Metadata = {
     title: "🔥 GenAI Professional Quiz Challenge",
 
     description:
-      "10 AI/ML Questions • Instant Rank • Live Leaderboard. Compete with professionals worldwide and see where you stand in the AI community.",
+      "Test your AI/ML skills with 10 real GenAI questions. Get instant ranking and compete globally on the live leaderboard with professionals worldwide.",
 
-    url: "https://tech-quiz-git-main-ganesh-yamavarapus-projects.vercel.app/",
+    url: "https://tech-quiz-coral.vercel.app/",
 
     siteName: "GenAI Quiz",
 
     images: [
       {
-        url: "https://tech-quiz-git-main-ganesh-yamavarapus-projects.vercel.app/preview.png",
+        url: "https://tech-quiz-coral.vercel.app/preview.png",
         width: 1200,
         height: 630,
         alt: "GenAI Professional Quiz Preview",
@@ -37,7 +35,7 @@ export const metadata: Metadata = {
     description:
       "Compete in the GenAI Professional Quiz and rank on the live leaderboard.",
     images: [
-      "https://tech-quiz-git-main-ganesh-yamavarapus-projects.vercel.app/preview.png",
+      "https://tech-quiz-coral.vercel.app/preview.png",
     ],
   },
 };
