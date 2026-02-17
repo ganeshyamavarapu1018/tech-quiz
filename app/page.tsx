@@ -147,6 +147,19 @@ export default function Home() {
             🎉 Final Score: {score} / {questions.length}
           </h2>
           <h3 className="mb-4">🏆 Your Rank: #{rank}</h3>
+
+          {/* LinkedIn Share Button */}
+          <button
+            onClick={() => {
+              const shareUrl =
+                "https://www.linkedin.com/sharing/share-offsite/?url=" +
+                encodeURIComponent(window.location.href);
+              window.open(shareUrl, "_blank");
+            }}
+            className="bg-blue-600 text-white p-2 w-full rounded hover:bg-blue-700 mt-4"
+          >
+            Share on LinkedIn
+          </button>
         </div>
       )}
 
