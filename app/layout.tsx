@@ -1,6 +1,6 @@
 export const metadata: Metadata = {
   metadataBase: new URL(
-    "https://tech-quiz-git-main-ganesh-yamavarapus-projects.vercel.app/"
+    "https://tech-quiz-git-main-ganesh-yamavarapus-projects.vercel.app"
   ),
 
   title: "🔥 GenAI Professional Quiz | Live Leaderboard",
