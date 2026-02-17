@@ -1,62 +1,43 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   metadataBase: new URL(
     "https://tech-quiz-git-main-ganesh-yamavarapus-projects.vercel.app/"
   ),
+
   title: "🔥 GenAI Professional Quiz | Live Leaderboard",
+
   description:
-    "Test your AI/ML knowledge with 10 GenAI questions. Get instant ranking and compete on the live leaderboard.",
+    "Take the GenAI Professional Quiz and test your AI/ML expertise with 10 real-world questions. Get instant ranking, compete on the live leaderboard, and challenge your network to beat your score today.",
+
   openGraph: {
     title: "🔥 GenAI Professional Quiz Challenge",
+
     description:
-      "10 GenAI Questions • Instant Rank • Live Leaderboard. Can you score 10/10?",
+      "10 AI/ML Questions • Instant Rank • Live Leaderboard. Compete with professionals worldwide and see where you stand in the AI community.",
+
     url: "https://tech-quiz-git-main-ganesh-yamavarapus-projects.vercel.app/",
+
     siteName: "GenAI Quiz",
+
     images: [
       {
-        url: "/preview.png", // This must exist inside /public folder
+        url: "https://tech-quiz-git-main-ganesh-yamavarapus-projects.vercel.app/preview.png",
         width: 1200,
         height: 630,
         alt: "GenAI Professional Quiz Preview",
       },
     ],
+
     locale: "en_US",
     type: "website",
   },
+
   twitter: {
     card: "summary_large_image",
     title: "🔥 GenAI Professional Quiz",
     description:
-      "Take the GenAI challenge and see where you rank on the leaderboard.",
-    images: ["/preview.png"],
+      "Compete in the GenAI Professional Quiz and rank on the live leaderboard.",
+    images: [
+      "https://tech-quiz-git-main-ganesh-yamavarapus-projects.vercel.app/preview.png",
+    ],
   },
 };
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
-  );
-}
