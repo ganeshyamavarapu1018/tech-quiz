@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
@@ -38,6 +39,8 @@ export default function Home() {
   }, []);
 
   const fetchLeaderboard = async () => {
+    if (!supabase) return;
+
     const { data } = await supabase
       .from("quiz_scores")
       .select("*")
@@ -57,8 +60,11 @@ export default function Home() {
   };
 
   const handleAnswer = async (index: number) => {
-    if (index === questions[currentQuestion].correct) {
-      setScore((prev) => prev + 1);
+    const isCorrect = index === questions[currentQuestion].correct;
+    const updatedScore = isCorrect ? score + 1 : score;
+
+    if (isCorrect) {
+      setScore(updatedScore);
     }
 
     if (currentQuestion + 1 < questions.length) {
@@ -66,12 +72,14 @@ export default function Home() {
     } else {
       const finalTime = Math.floor((Date.now() - startTime) / 1000);
 
+      if (!supabase) return;
+
       const { data } = await supabase
         .from("quiz_scores")
         .insert([
           {
             name,
-            score: index === questions[currentQuestion].correct ? score + 1 : score,
+            score: updatedScore,
             time_taken: finalTime,
           },
         ])
