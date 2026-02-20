@@ -17,9 +17,10 @@ export default function Home() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
-  const [startTime, setStartTime] = useState(0);
+  const [startTime, setStartTime] = useState<number | null>(null);
   const [leaderboard, setLeaderboard] = useState<Score[]>([]);
   const [rank, setRank] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const questions = [
     { text: "Which improves LLM factual accuracy MOST?", options: ["Bigger Model", "Prompt Engineering", "RAG", "Higher Temperature"], correct: 2 },
@@ -41,13 +42,15 @@ export default function Home() {
   const fetchLeaderboard = async () => {
     if (!supabase) return;
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("quiz_scores")
       .select("*")
       .order("score", { ascending: false })
       .order("time_taken", { ascending: true });
 
-    if (data) setLeaderboard(data);
+    if (!error && data) {
+      setLeaderboard(data);
+    }
   };
 
   const startQuiz = () => {
@@ -55,58 +58,75 @@ export default function Home() {
       alert("Please enter your name");
       return;
     }
+
     setStarted(true);
     setStartTime(Date.now());
   };
 
   const handleAnswer = async (index: number) => {
-    const isCorrect = index === questions[currentQuestion].correct;
-    const updatedScore = isCorrect ? score + 1 : score;
+    if (submitting) return;
 
-    if (isCorrect) {
-      setScore(updatedScore);
+    const isCorrect = index === questions[currentQuestion].correct;
+    const newScore = isCorrect ? score + 1 : score;
+
+    if (currentQuestion < questions.length - 1) {
+      setScore(newScore);
+      setCurrentQuestion((prev) => prev + 1);
+      return;
     }
 
-    if (currentQuestion + 1 < questions.length) {
-      setCurrentQuestion((prev) => prev + 1);
-    } else {
+    // LAST QUESTION
+    setSubmitting(true);
+
+    try {
+      if (!supabase || !startTime) throw new Error("Missing data");
+
       const finalTime = Math.floor((Date.now() - startTime) / 1000);
 
-      if (!supabase) return;
-
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("quiz_scores")
         .insert([
           {
-            name,
-            score: updatedScore,
+            name: name.trim(),
+            score: newScore,
             time_taken: finalTime,
           },
         ])
         .select();
 
-      if (data) {
-        const { data: all } = await supabase
-          .from("quiz_scores")
-          .select("*")
-          .order("score", { ascending: false })
-          .order("time_taken", { ascending: true });
+      if (error) throw error;
 
-        if (all) {
-          const userRank =
-            all.findIndex((item) => item.id === data[0].id) + 1;
-          setRank(userRank);
-          setLeaderboard(all);
-        }
+      const { data: all, error: fetchError } = await supabase
+        .from("quiz_scores")
+        .select("*")
+        .order("score", { ascending: false })
+        .order("time_taken", { ascending: true });
+
+      if (fetchError) throw fetchError;
+
+      if (all && data) {
+        const userRank =
+          all.findIndex((item) => item.id === data[0].id) + 1;
+
+        setRank(userRank);
+        setLeaderboard(all);
       }
 
+      setScore(newScore);
       setFinished(true);
+    } catch (err) {
+      console.error("Submission failed:", err);
+      alert("Error submitting score. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
     <main className="min-h-screen bg-gradient-to-r from-indigo-600 to-purple-700 flex flex-col items-center p-8 text-white">
-      <h1 className="text-4xl font-bold mb-6">🔥 GenAI Professional Quiz</h1>
+      <h1 className="text-4xl font-bold mb-6">
+        🔥 GenAI Professional Quiz
+      </h1>
 
       {!started ? (
         <div className="bg-white text-black p-6 rounded-xl w-96 shadow-lg">
@@ -129,13 +149,17 @@ export default function Home() {
           <p className="mb-4 font-semibold">
             Question {currentQuestion + 1} / {questions.length}
           </p>
-          <p className="mb-4">{questions[currentQuestion].text}</p>
+
+          <p className="mb-4">
+            {questions[currentQuestion].text}
+          </p>
 
           {questions[currentQuestion].options.map((opt, i) => (
             <button
               key={i}
+              disabled={submitting}
               onClick={() => handleAnswer(i)}
-              className="bg-indigo-500 text-white p-2 w-full rounded mb-2 hover:bg-indigo-600"
+              className="bg-indigo-500 text-white p-2 w-full rounded mb-2 hover:bg-indigo-600 disabled:opacity-50"
             >
               {opt}
             </button>
@@ -144,11 +168,15 @@ export default function Home() {
       ) : (
         <div className="bg-white text-black p-6 rounded-xl w-96 shadow-lg text-center">
           <h2 className="text-2xl font-bold mb-2">
-            🎉 Final Score: {score} / {questions.length}
+            Final Score: {score} / {questions.length}
           </h2>
-          <h3 className="mb-4">🏆 Your Rank: #{rank}</h3>
 
-          {/* LinkedIn Share Button */}
+          {rank && (
+            <h3 className="mb-4">
+              Your Rank: #{rank}
+            </h3>
+          )}
+
           <button
             onClick={() => {
               const shareUrl =
@@ -164,10 +192,19 @@ export default function Home() {
       )}
 
       <div className="mt-10 bg-white text-black p-6 rounded-xl w-96 shadow-lg">
-        <h2 className="text-xl font-bold mb-4">🏆 Leaderboard</h2>
+        <h2 className="text-xl font-bold mb-4">
+          Leaderboard
+        </h2>
 
         {leaderboard.map((user, index) => (
-          <div key={user.id} className="flex justify-between mb-2">
+          <div
+            key={user.id}
+            className={`flex justify-between mb-2 ${
+              user.name === name && finished
+                ? "font-bold text-indigo-600"
+                : ""
+            }`}
+          >
             <span>
               {index + 1}. {user.name}
             </span>
