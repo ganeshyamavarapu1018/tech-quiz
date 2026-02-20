@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
+console.log("Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
 
 type Score = {
   id: string;
